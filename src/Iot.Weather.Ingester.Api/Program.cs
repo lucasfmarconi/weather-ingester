@@ -1,4 +1,4 @@
-using Iot.Weather.Ingester.InfluxDb;
+using Iot.Weather.Ingester.IoC;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,7 +10,7 @@ builder.Services.AddControllers();
 
 var configuration = builder.Configuration;
 
-builder.Services.RegisterInfluxDb(configuration);
+builder.Services.RegisterModules(configuration);
 
 var app = builder.Build();
 

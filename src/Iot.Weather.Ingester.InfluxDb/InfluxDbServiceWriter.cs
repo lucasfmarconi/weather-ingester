@@ -4,7 +4,7 @@ using InfluxDB.Client.Writes;
 
 namespace Iot.Weather.Ingester.InfluxDb;
 
-internal class InfluxDbServiceWriter(IInfluxDBClient influxDbClient) : IInfluxDbServiceWriter
+internal sealed class InfluxDbServiceWriter(IInfluxDBClient influxDbClient) : IInfluxDbServiceWriter
 {
     private readonly IInfluxDBClient _influxDbClient =
         influxDbClient ?? throw new ArgumentNullException(nameof(influxDbClient));

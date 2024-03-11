@@ -15,7 +15,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Iot.Weather.Ingester.InfluxDb\Iot.Weather.Ingester.InfluxDb.csproj" />
+    <ProjectReference Include="..\Iot.Weather.Ingester.IoC\Iot.Weather.Ingester.IoC.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controllers/" />
   </ItemGroup>
 
 </Project>
