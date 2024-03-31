@@ -2,6 +2,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Iot.Weather.Ingester.InfluxDb\Iot.Weather.Ingester.InfluxDb.csproj" />
+    <ProjectReference Include="..\Iot.Weather.Ingester.Mqtt\Iot.Weather.Ingester.Mqtt.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
