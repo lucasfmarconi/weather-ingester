@@ -1,4 +1,6 @@
 using Iot.Weather.Ingester.Mqtt;
+using MQTTnet;
+using MQTTnet.Client;
 
 namespace Iot.Weather.Ingester.Worker;
 
@@ -15,21 +17,23 @@ public class Worker : BackgroundService
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        async Task MyLocalEventHandler(EventArgs e)
+        Task MessageHandler(MqttApplicationMessageReceivedEventArgs e)
         {
-            // Your local function logic here...
-            await Task.Delay(1000); // For example, simulate some asynchronous operation
-            Console.WriteLine("Local function executed.");
+            _logger.LogDebug("Received application message.");
+            _logger.LogDebug(e.ApplicationMessage.ConvertPayloadToString());
+            return Task.CompletedTask;
         }
 
-        await _mqttSubscriber.SubscribeToTopic("/sensors/air-sensors/#", MyLocalEventHandler, stoppingToken);
+        Func<MqttApplicationMessageReceivedEventArgs, Task> localFunctionDelegate = MessageHandler;
+
+        await _mqttSubscriber.SubscribeToTopic("/sensors/air-sensors/#", localFunctionDelegate, stoppingToken);
         while (!stoppingToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Information))
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
             }
-            await Task.Delay(1000, stoppingToken);
+            await Task.Delay(15000, stoppingToken);
         }
     }
 }

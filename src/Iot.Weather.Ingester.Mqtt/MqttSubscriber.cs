@@ -27,7 +27,7 @@ public class MqttSubscriber : IMqttSubscriber
             .Build();
 
         // In MQTTv5 the response contains much more information.
-        var response = await mqttClient.ConnectAsync(mqttClientOptions, CancellationToken.None);
+        var response = await mqttClient.ConnectAsync(mqttClientOptions, cancellationToken);
 
         Console.WriteLine("The MQTT client is connected.");
 
@@ -36,20 +36,22 @@ public class MqttSubscriber : IMqttSubscriber
         return mqttClient;
     }
 
-    public async Task SubscribeToTopic(string topic, Func<EventArgs, Task> messageCallBackDelegate, CancellationToken cancellationToken)
+    public async Task SubscribeToTopic(
+        string topic, Func<MqttApplicationMessageReceivedEventArgs, Task> messageCallBackDelegate,
+        CancellationToken cancellationToken)
     {
         // Setup message handling before connecting so that queued messages
         // are also handled properly. When there is no event handler attached all
         // received messages get lost.
         var mqttClient = await ConnectToBroker("broker.emqx.io", cancellationToken);
-
-        mqttClient.ApplicationMessageReceivedAsync += e =>
-        {
-            e.DumpToConsole();
-            Console.WriteLine("Received application message.");
-            Console.WriteLine(e.ApplicationMessage.ConvertPayloadToString());
-            return Task.CompletedTask;
-        };
+        mqttClient.ApplicationMessageReceivedAsync += messageCallBackDelegate;
+        // mqttClient.ApplicationMessageReceivedAsync += e =>
+        // {
+        //     e.DumpToConsole();
+        //     Console.WriteLine("Received application message.");
+        //     Console.WriteLine(e.ApplicationMessage.ConvertPayloadToString());
+        //     return Task.CompletedTask;
+        // };
 
         var mqttSubscribeOptions = _mqttFactory.CreateSubscribeOptionsBuilder()
             .WithTopicFilter(

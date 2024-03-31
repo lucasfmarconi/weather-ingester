@@ -1,7 +1,9 @@
-﻿namespace Iot.Weather.Ingester.Mqtt;
+﻿using MQTTnet.Client;
+
+namespace Iot.Weather.Ingester.Mqtt;
 
 public interface IMqttSubscriber
 {
-    Task SubscribeToTopic(string topic, Func<EventArgs, Task> messageCallBackDelegate,
+    Task SubscribeToTopic(string topic, Func<MqttApplicationMessageReceivedEventArgs, Task> messageCallBackDelegate,
         CancellationToken cancellationToken);
 }
