@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Iot.Weather.Ingester.InfluxDb.Configuration;
 
-internal class InfluxDbConfiguration()
+public class InfluxDbConfiguration()
 {
     [Required]
     public string Bucket { get; init; }
