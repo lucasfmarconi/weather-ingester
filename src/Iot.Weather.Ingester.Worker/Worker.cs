@@ -44,7 +44,7 @@ public class Worker : BackgroundService
              _influxDbOptions.Value.Organization,
              "air-sensors",
              ("dht11", "humidity"),
-             ("value", sensorValue));
+             ("humidity", humidity.Value));
         _logger.LogDebug("Humidity sensor value successfully wrote.");
         return Task.CompletedTask;
     }
@@ -65,7 +65,7 @@ public class Worker : BackgroundService
              _influxDbOptions.Value.Organization,
              "air-sensors",
              ("dht11", "temperature"),
-             ("value", sensorValue));
+             ("temperature", temperature.Value));
         _logger.LogDebug("Temperature sensor value successfully wrote.");
         return Task.CompletedTask;
     }
