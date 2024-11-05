@@ -1,4 +1,6 @@
 ﻿
+using Iot.Weather.Ingester.Worker.Configuration;
+using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
 using MQTTnet.Formatter;
@@ -8,24 +10,33 @@ namespace Iot.Weather.Ingester.Mqtt;
 public class MqttSubscriber : IMqttSubscriber
 {
     private readonly MqttFactory _mqttFactory;
+    private readonly MqttConfiguration _mqttConfiguration;
 
-    public MqttSubscriber(MqttFactory mqttFactory)
+    public MqttSubscriber(MqttFactory mqttFactory, IOptions<MqttConfiguration> mqttOptions)
     {
-        _mqttFactory = mqttFactory;
+        _mqttFactory = mqttFactory ?? throw new ArgumentNullException(nameof(mqttFactory));
+        _mqttConfiguration = mqttOptions.Value ?? throw new ArgumentNullException(nameof(mqttOptions));
     }
 
-    private async Task<IMqttClient> ConnectToBroker(string brokerUrl, CancellationToken cancellationToken, int port = 1883)
+    private async Task<IMqttClient> ConnectToBroker(string brokerUrl,
+        string username,
+        string password,
+        CancellationToken cancellationToken,
+        int port = 1883)
     {
         var mqttClient = _mqttFactory.CreateMqttClient();
 
         var mqttClientOptions = new MqttClientOptionsBuilder()
-            .WithTcpServer(brokerUrl, port) // MQTT broker address and port
-                                            // .WithCredentials(username, password) // Set username and password
-            .WithClientId("WeatherIngester-" + Guid.NewGuid().ToString())
+            .WithTcpServer(brokerUrl, port).WithCredentials(username, password) // Set username and password
+            .WithClientId($"WeatherIngester-{Guid.NewGuid()}")
             .WithCleanSession()
             .WithProtocolVersion(MqttProtocolVersion.V500)
-            .Build();
-
+            .WithTlsOptions(o =>
+            {
+                o.UseTls();
+                o.WithAllowUntrustedCertificates();
+            })
+            .Build();   
         // In MQTTv5 the response contains much more information.
         var response = await mqttClient.ConnectAsync(mqttClientOptions, cancellationToken);
 
@@ -43,7 +54,11 @@ public class MqttSubscriber : IMqttSubscriber
         // Setup message handling before connecting so that queued messages
         // are also handled properly. When there is no event handler attached all
         // received messages get lost.
-        var mqttClient = await ConnectToBroker("broker.emqx.io", cancellationToken);
+        var mqttClient = await ConnectToBroker(_mqttConfiguration.Server,
+            _mqttConfiguration.Username,
+            _mqttConfiguration.Password,
+            cancellationToken,
+            _mqttConfiguration.Port);
         mqttClient.ApplicationMessageReceivedAsync += messageCallBackDelegate;
         // mqttClient.ApplicationMessageReceivedAsync += e =>
         // {

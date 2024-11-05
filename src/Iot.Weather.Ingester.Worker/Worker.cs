@@ -1,8 +1,8 @@
 using FluentResults;
-using InfluxDB.Client.Core.Flux.Internal;
 using Iot.Weather.Ingester.InfluxDb;
 using Iot.Weather.Ingester.InfluxDb.Configuration;
 using Iot.Weather.Ingester.Mqtt;
+using Iot.Weather.Ingester.Worker.Configuration;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
@@ -14,18 +14,21 @@ public class Worker : BackgroundService
     private readonly ILogger<Worker> _logger;
     private readonly IMqttSubscriber _mqttSubscriber;
     private readonly IInfluxDbServiceWriter _influxServiceWriter;
-    private IOptions<InfluxDbConfiguration> _influxDbOptions;
+    private readonly IOptions<InfluxDbConfiguration> _influxDbOptions;
+    private readonly IOptions<MqttConfiguration> _mqttOptions;
 
     public Worker(
         ILogger<Worker> logger,
         IMqttSubscriber mqttSubscriber,
         IInfluxDbServiceWriter influxServiceWriter,
-        IOptions<InfluxDbConfiguration> influxDbOptions)
+        IOptions<InfluxDbConfiguration> influxDbOptions,
+        IOptions<MqttConfiguration> mqttOptions)
     {
-        _logger = logger;
-        _mqttSubscriber = mqttSubscriber;
-        _influxServiceWriter = influxServiceWriter;
-        _influxDbOptions = influxDbOptions;
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _mqttSubscriber = mqttSubscriber ?? throw new ArgumentNullException(nameof(mqttSubscriber));
+        _influxServiceWriter = influxServiceWriter ?? throw new ArgumentNullException(nameof(influxServiceWriter));
+        _influxDbOptions = influxDbOptions ?? throw new ArgumentNullException(nameof(influxDbOptions));
+        _mqttOptions = mqttOptions ?? throw new ArgumentNullException(nameof(mqttOptions));
     }
 
     private Task HumidityMessageHandler(MqttApplicationMessageReceivedEventArgs e)
@@ -70,22 +73,21 @@ public class Worker : BackgroundService
         return Task.CompletedTask;
     }
 
-    private Result<int> TryConvertSensorValueToInt(string value)
+    private static Result<int> TryConvertSensorValueToInt(string value)
     {
-        if (int.TryParse(value, out int result))
-        {
-            return Result.Ok(result);
-        }
-        return Result.Fail("Unable to convert value to int");
+        return int.TryParse(value, out var result) ? Result.Ok(result) : Result.Fail("Unable to convert value to int");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        Func<MqttApplicationMessageReceivedEventArgs, Task> humidityFuncDelegate = HumidityMessageHandler;
-        Func<MqttApplicationMessageReceivedEventArgs, Task> TemperatureFuncDelegate = TemperatureMessageHandler;
+        var humidityFuncDelegate = HumidityMessageHandler;
+        var temperatureFuncDelegate = TemperatureMessageHandler;
 
-        await _mqttSubscriber.SubscribeToTopic("/sensors/air-sensors/dht11/temperature", TemperatureFuncDelegate, stoppingToken);
-        await _mqttSubscriber.SubscribeToTopic("/sensors/air-sensors/dht11/humidity", humidityFuncDelegate, stoppingToken);
+        await _mqttSubscriber.SubscribeToTopic("sensors/air-sensors/temperature", temperatureFuncDelegate,
+            stoppingToken);
+        await _mqttSubscriber.SubscribeToTopic("sensors/air-sensors/humidity", humidityFuncDelegate,
+            stoppingToken);
+        
         while (!stoppingToken.IsCancellationRequested)
         {
             if (_logger.IsEnabled(LogLevel.Information))

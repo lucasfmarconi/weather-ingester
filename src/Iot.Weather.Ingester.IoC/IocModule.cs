@@ -2,6 +2,7 @@
 using Iot.Weather.Ingester.InfluxDb;
 using Iot.Weather.Ingester.InfluxDb.Configuration;
 using Iot.Weather.Ingester.Mqtt;
+using Iot.Weather.Ingester.Worker.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;
@@ -17,9 +18,14 @@ public static class IocModule
         return services;
     }
 
-    public static IServiceCollection RegisterMqtt(this IServiceCollection services, IConfiguration configuration)
+    private static void RegisterMqtt(this IServiceCollection services, IConfiguration configuration)
     {
-        return services.AddSingleton<IMqttSubscriber>(subscriber => new MqttSubscriber(new MqttFactory()));
+        var configSection = configuration.GetSection("Mqtt");
+        var mqttConfiguration = configSection.Get<MqttConfiguration>();
+        services.AddOptions<MqttConfiguration>().Bind(configSection);
+        ArgumentNullException.ThrowIfNull(mqttConfiguration);
+        services.AddSingleton(new MqttFactory());
+        services.AddSingleton<IMqttSubscriber, MqttSubscriber>();
     }
 
     private static IServiceCollection RegisterInfluxDb(this IServiceCollection services,
