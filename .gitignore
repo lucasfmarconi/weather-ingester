@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 src/Iot.Weather.Ingester.Worker/Properties/launchSettings.json
 src/Iot.Weather.Ingester.Api/Properties/launchSettings.json
+.env

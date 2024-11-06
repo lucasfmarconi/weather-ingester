@@ -1,0 +1,62 @@
+﻿services:
+  iot.weather.ingester.worker:
+    build:
+      context: .
+      dockerfile: src/Iot.Weather.Ingester.Worker/Dockerfile
+    environment:
+      DOTNET_ENVIRONMENT: $DOTNET_ENVIRONMENT
+      INFLUX_TOKEN: $INFLUX_TOKEN
+      MQTT__Username: $MQTT__Username
+      MQTT__Password: $MQTT__Password
+      MQTT__Server: $MQTT__Server
+    env_file:
+      - .env
+    
+  iot.weather.ingester.api:
+    build:
+      context: .
+      dockerfile: src/Iot.Weather.Ingester.Api/Dockerfile
+    environment:
+      DOTNET_ENVIRONMENT: $DOTNET_ENVIRONMENT
+      INFLUX_TOKEN: $INFLUX_TOKEN
+      MQTT__Username: $MQTT__Username
+      MQTT__Password: $MQTT__Password
+      MQTT__Server: $MQTT__Server
+    env_file:
+      - .env
+  
+  hivemq:
+      image: hivemq/hivemq4
+      container_name: hivemq
+      ports:
+        - "1883:1883"  # MQTT port
+        - "8080:8080"  # HTTP dashboard port
+        - "8883:8883"  # MQTT over SSL port
+        - "8443:8443"  # HTTPS dashboard port
+      volumes:
+        - hivemq-data:/opt/hivemq/data
+        - hivemq-extensions:/opt/hivemq/extensions
+      environment:
+        HIVEMQ_BIND_ADDRESS: "0.0.0.0"
+        HIVEMQ_ALLOW_ANONYMOUS: "true"
+        
+  influxdb2:
+    image: influxdb:2.7.4
+    container_name: influxdb2
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb2-data:/var/lib/influxdb2
+      - influxdb2-config:/etc/influxdb2
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: influx27
+      DOCKER_INFLUXDB_INIT_ORG: influxdb
+      DOCKER_INFLUXDB_INIT_BUCKET: weather-series
+
+volumes:
+  hivemq-data:
+  hivemq-extensions:
+  influxdb2-data:
+  influxdb2-config:

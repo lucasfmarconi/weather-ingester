@@ -48,7 +48,7 @@ public class Worker : BackgroundService
              "air-sensors",
              ("dht11", "humidity"),
              ("humidity", humidity.Value));
-        _logger.LogDebug("Humidity sensor value successfully wrote.");
+        _logger.LogDebug("Humidity sensor value sent...");
         return Task.CompletedTask;
     }
 
@@ -69,7 +69,7 @@ public class Worker : BackgroundService
              "air-sensors",
              ("dht11", "temperature"),
              ("temperature", temperature.Value));
-        _logger.LogDebug("Temperature sensor value successfully wrote.");
+        _logger.LogDebug("Temperature sensor value sent...");
         return Task.CompletedTask;
     }
 

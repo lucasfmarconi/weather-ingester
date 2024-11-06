@@ -1,0 +1,38 @@
+# This is a generated file. Not intended for manual editing.
+services:
+  iot.weather.ingester.api:
+    build:
+      context: "/Users/lucasm/dev/weather-ingester"
+      dockerfile: "src/Iot.Weather.Ingester.Api/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/Iot.Weather.Ingester.Api.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "iot.weather.ingester.api:dev"
+    ports: []
+    volumes:
+    - "/Users/lucasm/.nuget/packages:/home/app/.nuget/packages"
+    - "/Users/lucasm/dev/weather-ingester/src/Iot.Weather.Ingester.Api:/app:rw"
+    - "/Users/lucasm/dev/weather-ingester:/src:rw"
+    working_dir: "/app"
+  iot.weather.ingester.worker:
+    build:
+      context: "/Users/lucasm/dev/weather-ingester"
+      dockerfile: "src/Iot.Weather.Ingester.Worker/Dockerfile"
+      target: "base"
+    command: []
+    entrypoint:
+    - "dotnet"
+    - "/app/bin/Debug/net8.0/Iot.Weather.Ingester.Worker.dll"
+    environment:
+      DOTNET_USE_POLLING_FILE_WATCHER: "true"
+    image: "iot.weather.ingester.worker:dev"
+    ports: []
+    volumes:
+    - "/Users/lucasm/.nuget/packages:/home/app/.nuget/packages"
+    - "/Users/lucasm/dev/weather-ingester/src/Iot.Weather.Ingester.Worker:/app:rw"
+    - "/Users/lucasm/dev/weather-ingester:/src:rw"
+    working_dir: "/app"
