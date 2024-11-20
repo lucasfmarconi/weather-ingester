@@ -19,15 +19,15 @@ on:
         type: string
       docker_build_dir:
         description: Docker build directory (default = '.')
-        default: "e2e-test"
+        default: "."
         type: string
       image_tag:
         description: Tag to apply to images.
         type: string
-        default: snapshot-artifact
+        default: latest
       lifecycle_policy_file:
         description: Path to the lifecycle policy JSON file (default = 'policy.json')
-        default: "e2e-test/policy.json"
+        default: "policy.json"
         type: string
       backend_s3_bucket:
         description: Name of the S3bucket for Terraform backend
@@ -39,14 +39,14 @@ on:
         type: string
       github_iam_role:
         description: Name of the IAM Role for adding access to ECR repo
-        default: "github-actions-role"
+        default: "github-idp-oidc"
         type: string
       aws_account_id:
         description: AWS Account ID
         type: string
       aws_region:
         description: Target AWS Region
-        default: "us-west-2"
+        default: "us-east-1"
         type: string
       backend_dynamodb_table:
         description: DynamoDB table for State lock
