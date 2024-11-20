@@ -1,5 +1,5 @@
-﻿
-using Iot.Weather.Ingester.Worker.Configuration;
+﻿using Iot.Weather.Ingester.Mqtt.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MQTTnet;
 using MQTTnet.Client;
@@ -10,11 +10,13 @@ namespace Iot.Weather.Ingester.Mqtt;
 public class MqttSubscriber : IMqttSubscriber
 {
     private readonly MqttFactory _mqttFactory;
+    private readonly ILogger<MqttSubscriber> _logger;
     private readonly MqttConfiguration _mqttConfiguration;
 
-    public MqttSubscriber(MqttFactory mqttFactory, IOptions<MqttConfiguration> mqttOptions)
+    public MqttSubscriber(MqttFactory mqttFactory, IOptions<MqttConfiguration> mqttOptions, ILogger<MqttSubscriber> logger)
     {
         _mqttFactory = mqttFactory ?? throw new ArgumentNullException(nameof(mqttFactory));
+        _logger = logger;
         _mqttConfiguration = mqttOptions.Value ?? throw new ArgumentNullException(nameof(mqttOptions));
     }
 
@@ -24,6 +26,8 @@ public class MqttSubscriber : IMqttSubscriber
         CancellationToken cancellationToken,
         int port = 1883)
     {
+        _logger.LogInformation("Connecting to broker...");
+        
         var mqttClient = _mqttFactory.CreateMqttClient();
 
         var mqttClientOptions = new MqttClientOptionsBuilder()
@@ -39,11 +43,14 @@ public class MqttSubscriber : IMqttSubscriber
             .Build();   
         // In MQTTv5 the response contains much more information.
         var response = await mqttClient.ConnectAsync(mqttClientOptions, cancellationToken);
-
-        Console.WriteLine("The MQTT client is connected.");
-
-        response.DumpToConsole();
-
+        if (response.ResultCode != MqttClientConnectResultCode.Success)
+        {
+            _logger.LogError("Failed to connect to broker.");
+            _logger.LogTrace("MQTT Client response: {@response}", response);
+            return mqttClient;
+        }
+        
+        _logger.LogInformation("The MQTT client is connected.");
         return mqttClient;
     }
 
@@ -60,13 +67,6 @@ public class MqttSubscriber : IMqttSubscriber
             cancellationToken,
             _mqttConfiguration.Port);
         mqttClient.ApplicationMessageReceivedAsync += messageCallBackDelegate;
-        // mqttClient.ApplicationMessageReceivedAsync += e =>
-        // {
-        //     e.DumpToConsole();
-        //     Console.WriteLine("Received application message.");
-        //     Console.WriteLine(e.ApplicationMessage.ConvertPayloadToString());
-        //     return Task.CompletedTask;
-        // };
 
         var mqttSubscribeOptions = _mqttFactory.CreateSubscribeOptionsBuilder()
             .WithTopicFilter(
@@ -78,6 +78,6 @@ public class MqttSubscriber : IMqttSubscriber
 
         await mqttClient.SubscribeAsync(mqttSubscribeOptions, CancellationToken.None);
 
-        Console.WriteLine("MQTT client subscribed to topic.");
+        _logger.LogInformation("MQTT client subscribed to topic.");
     }
 }

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Iot.Weather.Ingester.Worker.Configuration;
+namespace Iot.Weather.Ingester.Mqtt.Configuration;
 
 public class MqttConfiguration
 {
