@@ -21,4 +21,4 @@ RUN dotnet publish "Iot.Weather.Ingester.Worker.csproj" -c $BUILD_CONFIGURATION 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "Iot.Weather.Ingester.Worker.dll"]
+ENTRYPOINT ["./Iot.Weather.Ingester.Worker"]
