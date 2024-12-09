@@ -2,7 +2,7 @@
 using Iot.Weather.Ingester.InfluxDb;
 using Iot.Weather.Ingester.InfluxDb.Configuration;
 using Iot.Weather.Ingester.Mqtt;
-using Iot.Weather.Ingester.Worker.Configuration;
+using Iot.Weather.Ingester.Mqtt.Configuration;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MQTTnet;

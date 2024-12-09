@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Iot.Weather.Ingester.Worker.Configuration;
+namespace Iot.Weather.Ingester.Mqtt.Configuration;
 
 public class MqttConfiguration
 {
@@ -10,6 +10,6 @@ public class MqttConfiguration
     public string Password { get; init; }
     [Required]
     public string Server { get; init; }
-
     public int Port { get; init; }
+    public bool UseTls { get; init; }
 }
