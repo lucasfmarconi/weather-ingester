@@ -1,4 +1,4 @@
-﻿FROM mcr.microsoft.com/dotnet/runtime:8.0 AS base
+﻿FROM mcr.microsoft.com/dotnet/runtime-deps:8.0-jammy-chiseled AS base
 USER $APP_UID
 WORKDIR /app
 
@@ -16,7 +16,7 @@ RUN dotnet build "Iot.Weather.Ingester.Worker.csproj" -c $BUILD_CONFIGURATION -o
 
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Iot.Weather.Ingester.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Iot.Weather.Ingester.Worker.csproj" -c $BUILD_CONFIGURATION -o /app/publish --self-contained
 
 FROM base AS final
 WORKDIR /app
