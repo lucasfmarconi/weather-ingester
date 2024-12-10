@@ -25,9 +25,9 @@ public class MqttSubscriber : IMqttSubscriber
         _mqttConfiguration = mqttOptions.Value ?? throw new ArgumentNullException(nameof(mqttOptions));
     }
 
-    private async Task<IMqttClient> ConnectToBroker(string brokerUrl,
-        string username,
-        string password,
+    private async Task<IMqttClient> ConnectToBroker(string? brokerUrl,
+        string? username,
+        string? password,
         bool useTls,
         CancellationToken cancellationToken,
         int port = 1883)

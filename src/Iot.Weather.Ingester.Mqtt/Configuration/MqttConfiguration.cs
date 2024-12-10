@@ -5,11 +5,11 @@ namespace Iot.Weather.Ingester.Mqtt.Configuration;
 public class MqttConfiguration
 {
     [Required]
-    public string Username { get; init; }
+    public string? Username { get; init; }
     [Required]
-    public string Password { get; init; }
+    public string? Password { get; init; }
     [Required]
-    public string Server { get; init; }
+    public string? Server { get; init; }
     public int Port { get; init; }
     public bool UseTls { get; init; }
 }
