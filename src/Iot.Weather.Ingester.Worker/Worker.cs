@@ -83,10 +83,17 @@ public class Worker : BackgroundService
         var humidityFuncDelegate = HumidityMessageHandler;
         var temperatureFuncDelegate = TemperatureMessageHandler;
 
-        await _mqttSubscriber.SubscribeToTopic("sensors/air-sensors/temperature", temperatureFuncDelegate,
+        var humidityTopic = _mqttOptions.Value.SubTopics.AirSensors.Humidity;
+        var temperatureTopic = _mqttOptions.Value.SubTopics.AirSensors.Temperature;
+
+        await _mqttSubscriber.SubscribeToTopic(_mqttOptions.Value.SubTopics.AirSensors.Temperature,
+            temperatureFuncDelegate,
             stoppingToken);
-        await _mqttSubscriber.SubscribeToTopic("sensors/air-sensors/humidity", humidityFuncDelegate,
+        await _mqttSubscriber.SubscribeToTopic(_mqttOptions.Value.SubTopics.AirSensors.Humidity,
+            humidityFuncDelegate,
             stoppingToken);
+        _logger.LogInformation("Subscribed to {value}", temperatureTopic);
+        _logger.LogInformation("Subscribed to {value}", humidityTopic);
         
         while (!stoppingToken.IsCancellationRequested)
         {

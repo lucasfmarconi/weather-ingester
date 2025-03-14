@@ -12,4 +12,6 @@ public class MqttConfiguration
     public string? Server { get; init; }
     public int Port { get; init; }
     public bool UseTls { get; init; }
+    
+    public SubTopics SubTopics { get; init; } = new();
 }
