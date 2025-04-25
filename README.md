@@ -2,6 +2,8 @@
 
 This repository contains a C# application for ingesting data from an MQTT broker and storing it in an InfluxDB data series.
 
+[![Dotnet Build & Docker build and push](https://github.com/lucasfmarconi/weather-ingester/actions/workflows/ci-pipeline.yml/badge.svg)](https://github.com/lucasfmarconi/weather-ingester/actions/workflows/ci-pipeline.yml)
+
 ## Overview
 
 The MQTT to InfluxDB Data Ingester is designed to seamlessly capture data from an MQTT broker and store it in an InfluxDB database. This is particularly useful for scenarios where real-time data ingestion is required.
