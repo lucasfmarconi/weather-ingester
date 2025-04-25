@@ -1,4 +1,5 @@
 ﻿using InfluxDB.Client;
+using InfluxDB.Client.Core;
 using Iot.Weather.Ingester.InfluxDb;
 using Iot.Weather.Ingester.InfluxDb.Configuration;
 using Iot.Weather.Ingester.Mqtt;
@@ -40,7 +41,12 @@ public static class IocModule
         ArgumentNullException.ThrowIfNull(influxConfig);
 
         services.AddOptions<InfluxDbConfiguration>().Bind(configSection);
-        services.AddSingleton<IInfluxDBClient>(new InfluxDBClient(influxConfig.Server, token));
+        var influxClientOptions = new InfluxDBClientOptions(influxConfig.Server)
+        {
+            LogLevel = LogLevel.Basic,
+            Token = token
+        };
+        services.AddSingleton<IInfluxDBClient>(new InfluxDBClient(influxClientOptions));
         services.AddSingleton<IInfluxDbServiceWriter, InfluxDbServiceWriter>();
 
         return services;
