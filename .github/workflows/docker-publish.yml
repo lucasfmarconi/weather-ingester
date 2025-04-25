@@ -24,7 +24,7 @@ on:
       image_tag:
         description: Tag to apply to images.
         type: string
-        default: latest
+        default: ''
       lifecycle_policy_file:
         description: Path to the lifecycle policy JSON file (default = 'policy.json')
         default: "policy.json"
@@ -39,7 +39,29 @@ on:
         type: string
 
 jobs:
+  dotnet-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.x.x'
+
+      - name: Restore dependencies
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test --no-build --verbosity normal
+  
   docker:
+    trigger:
+      types: [ manual ]
     runs-on: ubuntu-latest
 
     permissions:
