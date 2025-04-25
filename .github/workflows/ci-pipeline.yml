@@ -1,4 +1,4 @@
-name: Docker image build and publish
+name: Dotnet Build & Docker build and push
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -13,6 +13,10 @@ on:
   
   workflow_dispatch:
     inputs:
+      run_docker_job:
+        description: "Run the Docker job (yes/no)"
+        default: "no"
+        type: string
       path_to_dockerfile:
         description: Path to the dockerfile (default = 'Dockerfile')
         default: "src/Iot.Weather.Ingester.Worker/Dockerfile"
@@ -59,10 +63,10 @@ jobs:
       - name: Test
         run: dotnet test --no-build --verbosity normal
   
-  docker:
-    trigger:
-      types: [ manual ]
+  docker-build-push:
     runs-on: ubuntu-latest
+    needs: dotnet-build-test
+    if: ${{ inputs.run_docker_job == 'yes' }} # Run only if the input is 'yes'
 
     permissions:
       id-token: write
